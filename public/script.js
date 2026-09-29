@@ -2,27 +2,31 @@ const API_URL = '/api';
 
 const translations = {
     uk: {
-        site_title: 'MediBot - Медичний AI асистент',
+        site_title: 'MediBot — AI-помічник з інформації про медикаменти',
         nav_home: 'Головна',
         nav_about: 'Про систему',
         nav_how_it_works: 'Як це працює',
         hero_badge: '🤖 AI-асистент для здоров\'я',
-        hero_title: 'Інтелектуальний помічник у виборі ліків',
-        hero_desc: 'Опишіть свої симптоми, і наш AI асистент на базі Google Gemini підбере найбільш підходящі медикаменти з нашої бази даних',
+        hero_title: 'Інформаційний AI-помічник про медикаменти',
+        hero_desc: 'Опишіть симптоми — AI знайде релевантні препарати в навчальній базі.',
         feature_fast: 'Швидкий аналіз',
         feature_db: 'База 30+ препаратів',
         feature_safe: 'Без реєстрації · запит обробляє Gemini',
         preview_status: 'AI асистент онлайн',
-        preview_message: 'Привіт! Я MediBot - ваш AI помічник. Опишіть ваші симптоми, і я підберу відповідні ліки.',
-        chat_title: 'Медичний асистент',
+        preview_message: 'Привіт! Я MediBot. Опишіть симптоми, щоб знайти релевантні записи про препарати в навчальній базі.',
+        chat_title: 'Інформація про медикаменти',
         chat_status: 'Онлайн',
         clear_chat_title: 'Очистити чат',
+        clear_chat_aria: 'Очистити чат',
+        send_message_aria: 'Надіслати повідомлення',
+        close_modal_aria: 'Закрити вікно',
+        language_selection_aria: 'Вибір мови',
         clear_chat_confirm: 'Ви впевнені, що хочете очистити історію чату?',
-        welcome_message: 'Вітаю! Я - ваш медичний AI асистент. Опишіть свої симптоми, і я допоможу підібрати відповідні медикаменти з нашої бази даних.<br><br><strong>Приклади запитів:</strong><ul><li>У мене болить голова і підвищена температура</li><li>Маю кашель і нежить</li><li>Відчуваю біль у животі та нудоту</li><li>Алергія та свербіж шкіри</li></ul><div class="warning-box">⚠️ <strong>Увага:</strong> Це інформаційна система. Завжди консультуйтесь з лікарем перед прийомом ліків!</div>',
+        welcome_message: 'Вітаю! Я MediBot — інформаційний AI-помічник про медикаменти. Опишіть симптоми, щоб знайти релевантні записи в навчальній базі.<br><br><strong>Приклади запитів:</strong><ul><li>У мене болить голова і підвищена температура</li><li>Маю кашель і нежить</li><li>Відчуваю біль у животі та нудоту</li><li>Алергія та свербіж шкіри</li></ul><div class="warning-box">⚠️ <strong>Увага:</strong> Це інформаційна система. Завжди консультуйтесь з лікарем перед прийомом ліків!</div>',
         typing_text: 'AI аналізує ваші симптоми...',
         input_placeholder: 'Опишіть ваші симптоми...',
         input_hint: 'Натисніть Enter для відправки або Shift+Enter для нового рядка',
-        carousel_title: '💊 Рекомендовані препарати',
+        carousel_title: '💊 Релевантні препарати',
         drug_fallback_desc: 'Ефективний препарат',
         error_request: '⚠️ Вибачте, виникла помилка при обробці вашого запиту. Будь ласка, спробуйте ще раз або перевірте, чи запущений сервер.',
         error_server_down: '⚠️ Сервер не запущений. Будь ласка, запустіть сервер командою: npm start',
@@ -36,47 +40,51 @@ const translations = {
         modal_warning_title: '⚠️ ВАЖЛИВО!',
         modal_warning_body: 'Перед застосуванням препарату обов\'язково проконсультуйтесь з лікарем. Самолікування може бути небезпечним для вашого здоров\'я. Інформація надається виключно в ознайомлювальних цілях.',
         about_title: 'Про MediBot',
-        about_subtitle: 'Інтелектуальна система підбору медикаментів на основі штучного інтелекту',
-        about_card1_title: 'Розумний підбір ліків',
-        about_card1_desc: 'Достатньо описати симптоми своїми словами — AI підбере 3–5 найбільш підходящих безрецептурних препаратів',
+        about_subtitle: 'Інформаційний пошук за описом симптомів у навчальній базі',
+        about_card1_title: 'Пошук препаратів за описом',
+        about_card1_desc: 'Опишіть симптоми — AI зіставить їх із релевантними записами навчальної бази.',
         about_card2_title: 'Деталі по кожному препарату',
         about_card2_desc: 'Дозування, протипоказання, побічні ефекти та виробник — вся ключова інформація в одній картці',
-        about_card3_title: 'Без реєстрації та оплати',
+        about_card3_title: 'Без реєстрації',
         about_card3_desc: 'Реєстрація не потрібна. Текст запиту передається Google Gemini API для обробки; локальна історія чату не зберігається сервером.',
         hiw_title: 'Як це працює',
         hiw_step1_title: 'Опишіть симптоми',
         hiw_step1_desc: 'Введіть у чат ваші симптоми природною мовою',
         hiw_step2_title: 'AI аналізує',
-        hiw_step2_desc: 'Gemini обробляє запит та підбирає відповідні ліки з бази',
-        hiw_step3_title: 'Отримайте результат',
-        hiw_step3_desc: 'Перегляньте рекомендації та детальну інформацію про препарати',
-        footer_desc: 'Інтелектуальний помічник у виборі ліків',
+        hiw_step2_desc: 'Gemini зіставляє запит із релевантними записами навчальної бази',
+        hiw_step3_title: 'Перегляньте інформацію',
+        hiw_step3_desc: 'Ознайомтеся з результатами пошуку та інформаційними картками препаратів',
+        footer_desc: 'Інформаційний AI-помічник про медикаменти',
         footer_info_title: 'Важлива інформація',
         footer_warning: '⚠️ Цей додаток створений виключно в освітніх цілях як кваліфікаційна робота. Інформація не замінює консультацію з лікарем. Завжди консультуйтеся з медичним фахівцем перед прийомом будь-яких ліків.',
         footer_copy: '© 2026 MediBot. Кваліфікаційна робота.'
     },
     en: {
-        site_title: 'MediBot - AI Medical Assistant',
+        site_title: 'MediBot — AI Medicine Information Assistant',
         nav_home: 'Home',
         nav_about: 'About',
         nav_how_it_works: 'How It Works',
         hero_badge: '🤖 AI Health Assistant',
-        hero_title: 'Intelligent Medication Discovery Assistant',
-        hero_desc: 'Describe your symptoms, and our Google Gemini-powered AI assistant will match the most suitable medications from our database',
+        hero_title: 'AI Medicine Information Assistant',
+        hero_desc: 'Describe your symptoms and AI will find relevant medicine entries in the educational dataset.',
         feature_fast: 'Fast analysis',
         feature_db: '30+ medication database',
         feature_safe: 'No account · requests processed by Gemini',
         preview_status: 'AI assistant online',
-        preview_message: 'Hello! I am MediBot, your AI assistant. Describe your symptoms and I will help select the right medications.',
-        chat_title: 'Medical Assistant',
+        preview_message: 'Hello! I am MediBot. Describe your symptoms to find relevant medicine entries in the educational dataset.',
+        chat_title: 'Medicine Information',
         chat_status: 'Online',
         clear_chat_title: 'Clear chat',
+        clear_chat_aria: 'Clear chat',
+        send_message_aria: 'Send message',
+        close_modal_aria: 'Close dialog',
+        language_selection_aria: 'Language selection',
         clear_chat_confirm: 'Are you sure you want to clear the chat history?',
-        welcome_message: 'Hello! I am your AI medical assistant. Describe your symptoms, and I will help select appropriate medications from our database.<br><br><strong>Example queries:</strong><ul><li>I have a headache and a high fever</li><li>I have a cough and a runny nose</li><li>I feel stomach pain and nausea</li><li>Allergy symptoms and skin itching</li></ul><div class="warning-box">⚠️ <strong>Warning:</strong> This is an informational system. Always consult a healthcare specialist before taking any medication!</div>',
+        welcome_message: 'Hello! I am MediBot, an AI medicine information assistant. Describe your symptoms to find relevant entries in the educational dataset.<br><br><strong>Example queries:</strong><ul><li>I have a headache and a high fever</li><li>I have a cough and a runny nose</li><li>I feel stomach pain and nausea</li><li>Allergy symptoms and skin itching</li></ul><div class="warning-box">⚠️ <strong>Warning:</strong> This is an informational system. Always consult a healthcare specialist before taking any medication!</div>',
         typing_text: 'AI is analyzing your symptoms...',
         input_placeholder: 'Describe your symptoms...',
         input_hint: 'Press Enter to send or Shift+Enter for a new line',
-        carousel_title: '💊 Recommended Medications',
+        carousel_title: '💊 Relevant Medications',
         drug_fallback_desc: 'Effective medication',
         error_request: '⚠️ Sorry, an error occurred while processing your request. Please try again or check if the server is running.',
         error_server_down: '⚠️ Server is not running. Please start the server with: npm start',
@@ -90,21 +98,21 @@ const translations = {
         modal_warning_title: '⚠️ IMPORTANT!',
         modal_warning_body: 'Always consult a doctor before taking any medication. Self-medication can be hazardous to your health. Information is provided solely for educational purposes.',
         about_title: 'About MediBot',
-        about_subtitle: 'Intelligent AI-powered medication assistance system',
-        about_card1_title: 'Smart Drug Selection',
-        about_card1_desc: 'Simply describe your symptoms in your own words — AI selects 3–5 most suitable OTC medications',
+        about_subtitle: 'Informational search by symptom description in an educational dataset',
+        about_card1_title: 'Symptom-Based Medicine Search',
+        about_card1_desc: 'Describe your symptoms and AI will match them with relevant entries in the educational dataset.',
         about_card2_title: 'Comprehensive Details',
         about_card2_desc: 'Dosage, contraindications, side effects, and manufacturer — all key information in a single card',
-        about_card3_title: 'Free & Anonymous',
+        about_card3_title: 'No Account Required',
         about_card3_desc: 'No account is required. Your message is sent to the Google Gemini API for processing; chat history is not stored by this server.',
         hiw_title: 'How It Works',
         hiw_step1_title: 'Describe Symptoms',
         hiw_step1_desc: 'Type your symptoms in natural everyday language into the chat',
         hiw_step2_title: 'AI Analysis',
-        hiw_step2_desc: 'Gemini analyzes your symptoms and matches the best medications from the database',
-        hiw_step3_title: 'Get Recommendations',
-        hiw_step3_desc: 'Review recommendations and view detailed medical cards for each medication',
-        footer_desc: 'Intelligent drug discovery assistant',
+        hiw_step2_desc: 'Gemini matches your message with relevant entries in the educational dataset',
+        hiw_step3_title: 'Review Information',
+        hiw_step3_desc: 'Explore search results and informational medicine cards',
+        footer_desc: 'AI medicine information assistant',
         footer_info_title: 'Important Information',
         footer_warning: '⚠️ This application was created for educational purposes as a diploma qualification project. The information provided does not replace professional medical advice. Always consult a healthcare specialist before taking any medication.',
         footer_copy: '© 2026 MediBot. Graduation project.'
@@ -176,6 +184,13 @@ function setLanguage(lang) {
         const key = el.getAttribute('data-i18n-title');
         if (t[key]) {
             el.title = t[key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria-label');
+        if (t[key]) {
+            el.setAttribute('aria-label', t[key]);
         }
     });
 
@@ -451,6 +466,8 @@ function addMedicinesCarouselToChat(medicines) {
         </div>
     `;
 
+    messageDiv.querySelectorAll('img').forEach(addImageFallback);
+
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -478,8 +495,7 @@ function createMedicineCardHTML(medicine) {
         <div class="medicine-card-inline">
             <img src="${escapeAttribute(imageUrl)}"
                  alt="${escapeAttribute(name)}"
-                 class="medicine-image-inline" 
-                 onerror="this.src='/img/Paracetamol.webp'">
+                 class="medicine-image-inline">
             <div class="medicine-category-inline">${escapeHTML(category)}</div>
             <h5>${escapeHTML(name)}</h5>
             <p class="medicine-desc-inline">${escapeHTML(desc)}...</p>
@@ -491,6 +507,14 @@ function createMedicineCardHTML(medicine) {
 function getSafeImageUrl(value) {
     const imageUrl = String(value || '/img/Paracetamol.webp');
     return imageUrl.startsWith('/img/') ? imageUrl : '/img/Paracetamol.webp';
+}
+
+function addImageFallback(image) {
+    image.addEventListener('error', () => {
+        if (image.dataset.fallbackApplied) return;
+        image.dataset.fallbackApplied = 'true';
+        image.src = '/img/Paracetamol.webp';
+    });
 }
 
 function setupInfiniteCarousel(messageDiv, originalLength) {
@@ -613,11 +637,10 @@ function showMedicineDetails(medicine) {
     const side = getMedicineField(medicine, 'side_effects');
 
     modalBody.innerHTML = `
-        <img src="${escapeAttribute(getSafeImageUrl(medicine.image_url))}" alt="${escapeAttribute(name)}" class="modal-medicine-image"
-             onerror="this.src='/img/Paracetamol.webp'">
+        <img src="${escapeAttribute(getSafeImageUrl(medicine.image_url))}" alt="${escapeAttribute(name)}" class="modal-medicine-image">
         
         <div class="modal-medicine-header">
-            <h2>${escapeHTML(name)}</h2>
+            <h2 id="modalTitle">${escapeHTML(name)}</h2>
             <div class="modal-medicine-meta">
                 <span class="meta-badge category">${escapeHTML(category)}</span>
                 <span class="meta-badge">${escapeHTML(t.modal_manufacturer)} ${escapeHTML(manufacturer)}</span>
@@ -660,6 +683,8 @@ function showMedicineDetails(medicine) {
             <p>${escapeHTML(t.modal_warning_body)}</p>
         </div>
     `;
+
+    modalBody.querySelectorAll('img').forEach(addImageFallback);
 
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.documentElement.style.setProperty('--scrollbar-compensation', scrollbarWidth + 'px');

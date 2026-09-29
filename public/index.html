@@ -27,7 +27,7 @@
                         <a href="#about" class="nav-link" data-i18n="nav_about">Про систему</a>
                         <a href="#how-it-works" class="nav-link" data-i18n="nav_how_it_works">Як це працює</a>
                     </nav>
-                    <div class="lang-switcher" role="group" aria-label="Language selection">
+                    <div class="lang-switcher" role="group" aria-label="Вибір мови" data-i18n-aria-label="language_selection_aria">
                         <button type="button" class="lang-btn active" data-lang="uk">UA</button>
                         <button type="button" class="lang-btn" data-lang="en">EN</button>
                     </div>
@@ -41,9 +41,9 @@
             <div class="hero-content">
                 <div class="hero-text">
                     <span class="badge" data-i18n="hero_badge">🤖 AI-асистент для здоров'я</span>
-                    <h2 class="hero-title" data-i18n="hero_title">Інтелектуальний помічник у виборі ліків</h2>
+                    <h2 class="hero-title" data-i18n="hero_title">Інформаційний AI-помічник про медикаменти</h2>
                     <p class="hero-description" data-i18n="hero_desc">
-                        Опишіть свої симптоми, і наш AI асистент на базі Google Gemini підбере найбільш підходящі медикаменти з нашої бази даних
+                        Опишіть симптоми — AI знайде релевантні препарати в навчальній базі.
                     </p>
                     <div class="hero-features">
                         <div class="feature-item">
@@ -76,7 +76,7 @@
                         </div>
                         <div class="chat-preview-message">
                             <div class="message-bubble assistant" data-i18n="preview_message">
-                                Привіт! Я MediBot - ваш AI помічник. Опишіть ваші симптоми, і я підберу відповідні ліки.
+                                Привіт! Я MediBot. Опишіть симптоми, щоб знайти релевантні записи про препарати в навчальній базі.
                             </div>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                             </p>
                         </div>
                     </div>
-                    <button class="btn-icon" id="clearChat" title="Очистити чат" aria-label="Очистити чат" data-i18n-title="clear_chat_title">
+                    <button class="btn-icon" id="clearChat" title="Очистити чат" aria-label="Очистити чат" data-i18n-title="clear_chat_title" data-i18n-aria-label="clear_chat_aria">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -123,7 +123,7 @@
                         </div>
                         <div class="message-content">
                             <div class="message-text" id="welcomeMessageText">
-                                Вітаю! Я - ваш медичний AI асистент. Опишіть свої симптоми, і я допоможу підібрати відповідні медикаменти з нашої бази даних.
+                                Вітаю! Я MediBot — інформаційний AI-помічник про медикаменти. Опишіть симптоми, щоб знайти релевантні записи в навчальній базі.
                                 <br><br>
                                 <strong>Приклади запитів:</strong>
                                 <ul>
@@ -155,7 +155,7 @@
                             rows="1"
                             required
                         ></textarea>
-                        <button type="submit" class="btn-send" id="sendButton" aria-label="Надіслати повідомлення">
+                        <button type="submit" class="btn-send" id="sendButton" aria-label="Надіслати повідомлення" data-i18n-aria-label="send_message_aria">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="22" y1="2" x2="11" y2="13"/>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -173,7 +173,7 @@
     <div class="modal" id="medicineModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-overlay" id="modalOverlay"></div>
         <div class="modal-content">
-            <button class="modal-close" id="modalClose" aria-label="Закрити">
+            <button class="modal-close" id="modalClose" aria-label="Закрити" data-i18n-aria-label="close_modal_aria">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/>
                     <line x1="6" y1="6" x2="18" y2="18"/>
@@ -200,8 +200,8 @@
                             <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
                     </div>
-                    <h3 data-i18n="about_card1_title">Розумний підбір ліків</h3>
-                    <p data-i18n="about_card1_desc">Достатньо описати симптоми своїми словами — AI підбере 3–5 найбільш підходящих безрецептурних препаратів</p>
+                    <h3 data-i18n="about_card1_title">Пошук препаратів за описом</h3>
+                    <p data-i18n="about_card1_desc">Опишіть симптоми — AI зіставить їх із релевантними записами навчальної бази.</p>
                 </div>
                 <div class="about-card">
                     <div class="about-icon">
@@ -222,8 +222,8 @@
                             <line x1="15" y1="9" x2="9" y2="15"/>
                         </svg>
                     </div>
-                    <h3 data-i18n="about_card3_title">Без реєстрації та оплати</h3>
-                    <p data-i18n="about_card3_desc">Рекомендації за кілька секунд, без акаунту та передачі особистих даних — анонімно та безкоштовно</p>
+                    <h3 data-i18n="about_card3_title">Без реєстрації</h3>
+                    <p data-i18n="about_card3_desc">Реєстрація не потрібна. Текст запиту передається Google Gemini API для обробки; локальна історія чату не зберігається сервером.</p>
                 </div>
             </div>
         </div>
@@ -249,8 +249,8 @@
                 <div class="step-arrow">→</div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h3 data-i18n="hiw_step3_title">Отримайте результат</h3>
-                    <p data-i18n="hiw_step3_desc">Перегляньте рекомендації та детальну інформацію про препарати</p>
+                    <h3 data-i18n="hiw_step3_title">Перегляньте інформацію</h3>
+                    <p data-i18n="hiw_step3_desc">Ознайомтеся з результатами пошуку та інформаційними картками препаратів</p>
                 </div>
             </div>
         </div>
@@ -267,7 +267,7 @@
                         </svg>
                         <h3>MediBot</h3>
                     </div>
-                    <p data-i18n="footer_desc">Інтелектуальний помічник у виборі ліків</p>
+                    <p data-i18n="footer_desc">Інформаційний AI-помічник про медикаменти</p>
                 </div>
                 <div class="footer-section">
                     <h4 data-i18n="footer_info_title">Важлива інформація</h4>
