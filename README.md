@@ -34,9 +34,11 @@ flowchart LR
     API -->|response and medicine details| Browser
 ```
 
-## Screenshots
+## Demo
 
-Screenshots are not included yet. Add genuine application screenshots under `docs/screenshots/` when available.
+The GIF shows a locally simulated `Sore throat` response, medicine carousel and detail modal. It is a prepared demo flow and does not represent a live Gemini response.
+
+![MediBot demo: Sore throat response and medicine details](docs/screenshots/medibot-demo.gif)
 
 ## Installation
 
