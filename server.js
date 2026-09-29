@@ -18,7 +18,9 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '16kb' }));
 app.use(express.static('public'));
 
-const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
+const ai = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here'
+    ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+    : null;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 const chatRequests = new Map();
 const CHAT_RATE_LIMIT = 20;
@@ -37,6 +39,23 @@ function applyChatRateLimit(req, res, next) {
     requests.push(now);
     chatRequests.set(clientKey, requests);
     next();
+}
+
+function isRetryableGeminiError(error) {
+    const status = Number(error.status || error.code || (error.error && error.error.code));
+    const message = String(error.message || '').toLowerCase();
+    return status === 429 || status >= 500 || message.includes('unavailable') || message.includes('high demand');
+}
+
+async function generateGeminiContent(contents, config) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+            return await ai.models.generateContent({ model: GEMINI_MODEL, contents, config });
+        } catch (error) {
+            if (attempt === 2 || !isRetryableGeminiError(error)) throw error;
+            await new Promise(resolve => setTimeout(resolve, 500 * (2 ** attempt)));
+        }
+    }
 }
 
 const shortDb = new sqlite3.Database(path.join(__dirname, 'database', 'medicines-short.db'));
@@ -162,15 +181,11 @@ ${medicinesContext}
 ПОЯСНЕННЯ:
 [Чому саме ці препарати підходять для описаних симптомів]`;
 
-        const result = await ai.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: message,
-            config: {
+        const result = await generateGeminiContent(message, {
                 systemInstruction: systemPrompt,
                 temperature: 0.7,
                 maxOutputTokens: 2048,
                 thinkingConfig: { thinkingBudget: 0 }
-            }
         });
 
         const aiResponse = result.text || (isEn ? 'No response was returned. Please try again.' : 'Не отримано відповіді. Спробуйте ще раз.');

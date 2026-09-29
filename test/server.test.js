@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
+process.env.GEMINI_API_KEY = '';
 const { app, shortDb, fullDb } = require('../server');
 
 test('health endpoint responds successfully and chat validates requests without a Gemini key', async () => {
