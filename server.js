@@ -1,7 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const { GoogleGenAI } = require('@google/genai');
@@ -9,12 +7,37 @@ const { GoogleGenAI } = require('@google/genai');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(bodyParser.json());
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'");
+    next();
+});
+app.use(express.json({ limit: '16kb' }));
 app.use(express.static('public'));
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+const chatRequests = new Map();
+const CHAT_RATE_LIMIT = 20;
+const CHAT_RATE_WINDOW_MS = 60_000;
+const MAX_CHAT_LENGTH = 4000;
+
+function applyChatRateLimit(req, res, next) {
+    const now = Date.now();
+    const clientKey = req.ip;
+    const requests = (chatRequests.get(clientKey) || []).filter(timestamp => now - timestamp < CHAT_RATE_WINDOW_MS);
+
+    if (requests.length >= CHAT_RATE_LIMIT) {
+        return res.status(429).json({ error: 'Too many requests. Please try again shortly.' });
+    }
+
+    requests.push(now);
+    chatRequests.set(clientKey, requests);
+    next();
+}
 
 const shortDb = new sqlite3.Database(path.join(__dirname, 'database', 'medicines-short.db'));
 const fullDb = new sqlite3.Database(path.join(__dirname, 'database', 'medicines-full.db'));
@@ -47,15 +70,24 @@ function getMedicineDetails(medicineNames) {
     });
 }
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', applyChatRateLimit, async (req, res) => {
     const isEn = req.body && req.body.language === 'en';
     try {
-        const { message } = req.body;
+        const { message, language = 'uk' } = req.body || {};
 
-        if (!message) {
+        if (language !== 'uk' && language !== 'en') {
+            return res.status(400).json({ error: 'Language must be uk or en' });
+        }
+        if (typeof message !== 'string' || !message.trim()) {
             return res.status(400).json({
                 error: isEn ? 'Message cannot be empty' : 'Повідомлення не може бути порожнім'
             });
+        }
+        if (message.length > MAX_CHAT_LENGTH) {
+            return res.status(400).json({ error: isEn ? 'Message must be 4000 characters or fewer' : 'Повідомлення має містити не більше 4000 символів' });
+        }
+        if (!ai) {
+            return res.status(503).json({ error: isEn ? 'Chat is unavailable because the Gemini API key is not configured' : 'Чат недоступний: не налаштовано ключ Gemini API' });
         }
 
         const medicines = await getAllMedicinesShort();
@@ -65,14 +97,14 @@ app.post('/api/chat', async (req, res) => {
             : medicines.map(med => `${med.name} (${med.category}): ${med.symptoms}`).join('\n');
 
         const systemPrompt = isEn
-            ? `You are a qualified medical assistant consultant. Your task is to analyze user symptoms and recommend appropriate medications from the available list below.
+            ? `You are an educational medicine information assistant. Match relevant medicine entries from the available list based on the user's description. This is informational only, not diagnosis or medical advice.
 
 IMPORTANT:
 - Analyze user symptoms carefully
-- Recommend ONLY medicines that appear in the available list below
+- Mention ONLY medicines that appear in the available list below
 - Select 3-5 most appropriate medications
 - Place the medications that best match the symptoms FIRST in the list
-- Explain why each medicine is recommended
+- Explain why each medicine may be relevant to the described symptoms, without presenting it as a treatment recommendation
 - Respond in English
 
 FORMAT RULES:
@@ -97,14 +129,14 @@ RECOMMENDED MEDICATIONS:
 
 EXPLANATION:
 [Explanation of why these specific medicines are suitable for the described symptoms]`
-            : `Ти - медичний асистент-консультант. Твоя задача - аналізувати симптоми користувача та рекомендувати відповідні ліки з наявного списку.
+            : `Ти — освітній помічник з інформації про ліки. Зіставляй описані користувачем симптоми з релевантними записами про препарати з наведеного списку. Це інформаційна довідка, а не діагноз чи медична порада.
 
 ВАЖЛИВО:
 - Аналізуй симптоми користувача дуже уважно
-- Рекомендуй ТІЛЬКИ ті ліки, які є у списку нижче
+- Згадуй ТІЛЬКИ ті ліки, які є у списку нижче
 - Обирай 3-5 найбільш підходящих препаратів
 - Препарати, що найточніше відповідають симптомам, став ПЕРШИМИ у списку
-- Пояснюй, чому саме ці ліки підходять
+- Пояснюй, чому ці препарати можуть відповідати описаним симптомам, не подаючи це як призначення лікування
 - Відповідай українською мовою
 
 ПРАВИЛА ОФОРМЛЕННЯ ВІДПОВІДІ:
@@ -141,7 +173,7 @@ ${medicinesContext}
             }
         });
 
-        const aiResponse = result.text;
+        const aiResponse = result.text || (isEn ? 'No response was returned. Please try again.' : 'Не отримано відповіді. Спробуйте ще раз.');
 
         const regex = isEn
             ? /(?:RECOMMENDED MEDICATIONS|RECOMMENDED MEDICINES|RECOMMENDED DRUGS):\s*\n?(.*?)(?=\n\n|EXPLANATION:|$)/is
@@ -230,8 +262,7 @@ ${medicinesContext}
     } catch (error) {
         console.error(error);
         res.status(500).json({
-            error: isEn ? 'An error occurred while processing the request' : 'Виникла помилка при обробці запиту',
-            details: error.message
+            error: isEn ? 'An error occurred while processing the request' : 'Виникла помилка при обробці запиту'
         });
     }
 });
@@ -322,12 +353,16 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
 
 process.on('SIGINT', () => {
     shortDb.close();
     fullDb.close();
     process.exit(0);
 });
+
+module.exports = { app, shortDb, fullDb };

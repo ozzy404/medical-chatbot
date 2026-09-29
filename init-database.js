@@ -598,6 +598,7 @@ async function initAllDatabases() {
         console.log('Databases initialized successfully.');
     } catch (error) {
         console.error(error);
+        process.exitCode = 1;
     }
 }
 

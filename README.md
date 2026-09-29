@@ -1,121 +1,97 @@
-# MediBot - AI-Powered Medical Assistant
+# MediBot — AI-Powered Medicine Information Chatbot
 
-An intelligent web application that analyzes user symptoms and recommends relevant over-the-counter medications using Google Gemini AI and a structured SQLite database.
-
-## Key Features
-
-- **Bilingual Interface (English & Ukrainian):** Instant client-side language switching between Ukrainian and English without page reload.
-- **Intelligent Symptom Analysis:** Natural language symptom assessment powered by Google Gemini (`gemini-2.5-flash`).
-- **Targeted Medication Matching:** Curated database of over-the-counter medications with active ingredients, indications, dosages, contraindications, and manufacturer details.
-- **Interactive Carousel & Modal Cards:** Touch-friendly, infinite carousel for browsing recommended medications with comprehensive detail modals.
-- **Safety First:** Built-in clinical warnings and disclaimers emphasizing professional medical consultation.
-- **Clean Responsive Architecture:** Pure CSS and vanilla JavaScript with zero bloated client frameworks, fully optimized for mobile, tablet, and desktop viewports.
+MediBot is a Bachelor's qualification project in Computer Science (2026). It demonstrates a bilingual web chatbot that sends a user's symptom description to Google Gemini, matches the response against a local SQLite medicine dataset, and presents informational results in a chat interface with a medicine carousel and detail modal.
 
 ## Tech Stack
 
-- **Frontend:** HTML5, CSS3, Modern JavaScript (ES6+), Inter typography
-- **Backend:** Node.js, Express.js, CORS, Body-Parser
-- **AI Engine:** Google Gemini AI (`@google/genai` SDK)
-- **Database:** SQLite3 with two-tier data schema (`medicines-short.db` for fast AI context injection and `medicines-full.db` for full pharmaceutical specifications)
+- Frontend: HTML, CSS and vanilla JavaScript
+- Backend: Node.js 18+, Express
+- AI: Google Gemini through `@google/genai` (`gemini-3.5-flash` by default)
+- Data: two SQLite databases initialized by `npm run init-db`
 
-## Project Structure
+## Key Features
 
+- Ukrainian and English interface with client-side language switching
+- Symptom descriptions processed by Gemini and matched to local medicine entries
+- Medicine search, carousel cards and detail modal
+- Responsive layout and keyboard-accessible chat and modal controls
+- No account required; chat history stays in the browser session and is not stored by this server
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser[Browser: bilingual UI, chat, search, carousel, modal]
+    API[Express REST API]
+    Gemini[Google Gemini API]
+    Short[(medicines-short.db)]
+    Full[(medicines-full.db)]
+    Browser -->|chat and search requests| API
+    API -->|symptom message and medicine context| Gemini
+    Gemini -->|informational response| API
+    API --> Short
+    API --> Full
+    API -->|response and medicine details| Browser
 ```
-medical-chatbot/
-├── database/
-│   ├── medicines-short.db   # Lightweight database for AI context
-│   └── medicines-full.db    # Full pharmaceutical database
-├── public/
-│   ├── index.html           # Main application interface
-│   ├── styles.css           # Responsive styling & layout
-│   ├── script.js            # Client logic, i18n switcher, carousel
-│   ├── favicon.svg          # Application icon
-│   └── img/                 # Medication packaging imagery
-├── .env.example             # Example environment configuration
-├── .gitignore               # Git exclusion rules
-├── init-database.js         # Bilingual database initialization script
-├── package.json             # Project dependencies and npm scripts
-├── server.js                # Express API server & Gemini integration
-└── README.md                # Project documentation
+
+## Screenshots
+
+Screenshots are not included yet. Add genuine application screenshots under `docs/screenshots/` when available.
+
+## Installation
+
+Requirements: Node.js 18 or newer and npm. A Gemini API key can be created in [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+```bash
+git clone https://github.com/ozzy404/medical-chatbot.git
+cd medical-chatbot
+npm ci
 ```
 
-## Getting Started
+Create `.env` from the example.
 
-### Prerequisites
+PowerShell:
 
-- **Node.js** (version 18.x or higher recommended)
-- **npm** (comes packaged with Node.js)
-- A **Google Gemini API Key** (obtainable free from [Google AI Studio](https://aistudio.google.com/app/apikey))
+```powershell
+Copy-Item .env.example .env
+```
 
-### Installation
+macOS/Linux:
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/medical-chatbot.git
-   cd medical-chatbot
-   ```
+```bash
+cp .env.example .env
+```
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+Set `GEMINI_API_KEY` in `.env`, then initialize the databases and start the application:
 
-3. **Configure environment variables:**
-   Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   Open `.env` and fill in your Gemini API key:
-   ```env
-   GEMINI_API_KEY=your_actual_gemini_api_key_here
-   PORT=3000
-   ```
+```bash
+npm run init-db
+npm start
+```
 
-4. **Initialize databases:**
-   Seed both SQLite databases with bilingual pharmaceutical datasets:
-   ```bash
-   npm run init-db
-   ```
+Open <http://localhost:3000>. For development with automatic reload, run `npm run dev`.
 
-5. **Start the server:**
-   ```bash
-   npm start
-   ```
-   For development with automatic reload on changes:
-   ```bash
-   npm run dev
-   ```
-
-6. **Open the application:**
-   Navigate in your browser to:
-   ```
-   http://localhost:3000
-   ```
-
-## API Endpoints
+## API
 
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/chat` | Receives `{ message, language }`, queries Gemini with medicine context, and returns analysis + matched drug cards. |
-| `GET` | `/api/medicine/:id` | Returns full pharmaceutical details for a specific medication by ID (accepts optional `?lang=en`). |
-| `GET` | `/api/search` | Search medications by name, category, or symptoms (e.g. `?query=fever&lang=en`). |
-| `GET` | `/api/health` | Health-check endpoint reporting server status and uptime timestamp. |
+| --- | --- | --- |
+| `POST` | `/api/chat` | Accepts `{ "message": "...", "language": "uk" }` (`uk` or `en`); returns an informational response and matched medicine records. |
+| `GET` | `/api/medicine/:id` | Returns a medicine record. Use `?lang=en` for English fields. |
+| `GET` | `/api/search?query=fever&lang=en` | Searches medicine names, categories and symptom fields. |
+| `GET` | `/api/health` | Returns server status and timestamp. |
 
-## Example Queries
+Chat messages must contain 1–4000 characters. The chat endpoint has a moderate per-IP request limit.
 
-- **English:**
-  - *"I have a severe headache, mild fever, and muscle aches."*
-  - *"Experiencing dry cough and sinus congestion for the past two days."*
-  - *"Heartburn and stomach discomfort after heavy meals."*
-- **Ukrainian:**
-  - *"У мене болить голова і підвищена температура."*
-  - *"Маю сильний кашель і закладеність носа."*
-  - *"Печія та важкість у шлунку після їди."*
+## Data & Limitations
+
+The bundled medicine dataset is for educational/demo use and has not been clinically validated. Its descriptions, dosage information, contraindications, side effects and prices may be incomplete or outdated. Gemini output may also be inaccurate. The application does not establish diagnoses or determine whether a medicine is appropriate for an individual.
+
+Chat messages are sent to the Google Gemini API for processing. This server does not persist chat history. Avoid entering identifying or sensitive personal information.
 
 ## Medical Disclaimer
 
-This project is created for educational and portfolio demonstration purposes. The recommendations generated by the AI model are for informational reference only and do not constitute professional medical advice, clinical diagnosis, or treatment plans. Users must consult a licensed physician or healthcare specialist before administering any medications.
+MediBot is an educational project and is not intended for clinical use. Its content is informational only and is not medical advice, diagnosis or treatment. Consult a qualified healthcare professional before making decisions about medicines; seek urgent care for emergencies.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is distributed under the [MIT License](LICENSE).

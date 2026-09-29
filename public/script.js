@@ -11,7 +11,7 @@ const translations = {
         hero_desc: 'Опишіть свої симптоми, і наш AI асистент на базі Google Gemini підбере найбільш підходящі медикаменти з нашої бази даних',
         feature_fast: 'Швидкий аналіз',
         feature_db: 'База 30+ препаратів',
-        feature_safe: 'Безпечно і конфіденційно',
+        feature_safe: 'Без реєстрації · запит обробляє Gemini',
         preview_status: 'AI асистент онлайн',
         preview_message: 'Привіт! Я MediBot - ваш AI помічник. Опишіть ваші симптоми, і я підберу відповідні ліки.',
         chat_title: 'Медичний асистент',
@@ -42,7 +42,7 @@ const translations = {
         about_card2_title: 'Деталі по кожному препарату',
         about_card2_desc: 'Дозування, протипоказання, побічні ефекти та виробник — вся ключова інформація в одній картці',
         about_card3_title: 'Без реєстрації та оплати',
-        about_card3_desc: 'Рекомендації за кілька секунд, без акаунту та передачі особистих даних — анонімно та безкоштовно',
+        about_card3_desc: 'Реєстрація не потрібна. Текст запиту передається Google Gemini API для обробки; локальна історія чату не зберігається сервером.',
         hiw_title: 'Як це працює',
         hiw_step1_title: 'Опишіть симптоми',
         hiw_step1_desc: 'Введіть у чат ваші симптоми природною мовою',
@@ -65,7 +65,7 @@ const translations = {
         hero_desc: 'Describe your symptoms, and our Google Gemini-powered AI assistant will match the most suitable medications from our database',
         feature_fast: 'Fast analysis',
         feature_db: '30+ medication database',
-        feature_safe: 'Safe & confidential',
+        feature_safe: 'No account · requests processed by Gemini',
         preview_status: 'AI assistant online',
         preview_message: 'Hello! I am MediBot, your AI assistant. Describe your symptoms and I will help select the right medications.',
         chat_title: 'Medical Assistant',
@@ -96,7 +96,7 @@ const translations = {
         about_card2_title: 'Comprehensive Details',
         about_card2_desc: 'Dosage, contraindications, side effects, and manufacturer — all key information in a single card',
         about_card3_title: 'Free & Anonymous',
-        about_card3_desc: 'Instant recommendations with no account required and no personal data collection — completely free',
+        about_card3_desc: 'No account is required. Your message is sent to the Google Gemini API for processing; chat history is not stored by this server.',
         hiw_title: 'How It Works',
         hiw_step1_title: 'Describe Symptoms',
         hiw_step1_desc: 'Type your symptoms in natural everyday language into the chat',
@@ -356,7 +356,7 @@ function addMessage(text, sender) {
     const textDiv = document.createElement('div');
     textDiv.className = 'message-text';
 
-    textDiv.innerHTML = formatMessage(text);
+    textDiv.innerHTML = formatMessage(escapeHTML(String(text ?? '')));
 
     contentDiv.appendChild(textDiv);
     messageDiv.appendChild(avatarDiv);
@@ -396,6 +396,20 @@ function formatMessage(text) {
     text = text.replace(/  +/g, ' ');
 
     return text;
+}
+
+function escapeHTML(value) {
+    return value.replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
+}
+
+function escapeAttribute(value) {
+    return escapeHTML(String(value ?? '')).replace(/`/g, '&#96;');
 }
 
 function addMedicinesCarouselToChat(medicines) {
@@ -458,18 +472,25 @@ function createMedicineCardHTML(medicine) {
     const desc = rawDesc.substring(0, 60);
     const price = getMedicineField(medicine, 'price_range');
 
+    const imageUrl = getSafeImageUrl(medicine.image_url);
+
     return `
         <div class="medicine-card-inline">
-            <img src="${medicine.image_url}" 
-                 alt="${name}" 
+            <img src="${escapeAttribute(imageUrl)}"
+                 alt="${escapeAttribute(name)}"
                  class="medicine-image-inline" 
                  onerror="this.src='/img/Paracetamol.webp'">
-            <div class="medicine-category-inline">${category}</div>
-            <h5>${name}</h5>
-            <p class="medicine-desc-inline">${desc}...</p>
-            <div class="medicine-price-inline">${price}</div>
+            <div class="medicine-category-inline">${escapeHTML(category)}</div>
+            <h5>${escapeHTML(name)}</h5>
+            <p class="medicine-desc-inline">${escapeHTML(desc)}...</p>
+            <div class="medicine-price-inline">${escapeHTML(price)}</div>
         </div>
     `;
+}
+
+function getSafeImageUrl(value) {
+    const imageUrl = String(value || '/img/Paracetamol.webp');
+    return imageUrl.startsWith('/img/') ? imageUrl : '/img/Paracetamol.webp';
 }
 
 function setupInfiniteCarousel(messageDiv, originalLength) {
@@ -592,51 +613,51 @@ function showMedicineDetails(medicine) {
     const side = getMedicineField(medicine, 'side_effects');
 
     modalBody.innerHTML = `
-        <img src="${medicine.image_url}" alt="${name}" class="modal-medicine-image"
+        <img src="${escapeAttribute(getSafeImageUrl(medicine.image_url))}" alt="${escapeAttribute(name)}" class="modal-medicine-image"
              onerror="this.src='/img/Paracetamol.webp'">
         
         <div class="modal-medicine-header">
-            <h2>${name}</h2>
+            <h2>${escapeHTML(name)}</h2>
             <div class="modal-medicine-meta">
-                <span class="meta-badge category">${category}</span>
-                <span class="meta-badge">${t.modal_manufacturer} ${manufacturer}</span>
-                <span class="meta-badge price">${price}</span>
+                <span class="meta-badge category">${escapeHTML(category)}</span>
+                <span class="meta-badge">${escapeHTML(t.modal_manufacturer)} ${escapeHTML(manufacturer)}</span>
+                <span class="meta-badge price">${escapeHTML(price)}</span>
             </div>
         </div>
 
         <div class="modal-section">
             <h3>${t.modal_description}</h3>
-            <p>${desc}</p>
+            <p>${escapeHTML(desc)}</p>
         </div>
 
         <div class="modal-section">
             <h3>${t.modal_active_substance}</h3>
-            <p>${active}</p>
+            <p>${escapeHTML(active)}</p>
         </div>
 
         <div class="modal-section">
             <h3>${t.modal_indications}</h3>
-            <p>${symptoms}</p>
+            <p>${escapeHTML(symptoms)}</p>
         </div>
 
         <div class="modal-section">
             <h3>${t.modal_dosage}</h3>
-            <p>${dosage}</p>
+            <p>${escapeHTML(dosage)}</p>
         </div>
 
         <div class="modal-section">
             <h3>${t.modal_contraindications}</h3>
-            <p>${contra}</p>
+            <p>${escapeHTML(contra)}</p>
         </div>
 
         <div class="modal-section">
             <h3>${t.modal_side_effects}</h3>
-            <p>${side}</p>
+            <p>${escapeHTML(side)}</p>
         </div>
 
         <div class="warning-box-modal">
-            <strong>${t.modal_warning_title}</strong>
-            <p>${t.modal_warning_body}</p>
+            <strong>${escapeHTML(t.modal_warning_title)}</strong>
+            <p>${escapeHTML(t.modal_warning_body)}</p>
         </div>
     `;
 

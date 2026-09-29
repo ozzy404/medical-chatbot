@@ -103,7 +103,7 @@
                             </p>
                         </div>
                     </div>
-                    <button class="btn-icon" id="clearChat" title="Очистити чат" data-i18n-title="clear_chat_title">
+                    <button class="btn-icon" id="clearChat" title="Очистити чат" aria-label="Очистити чат" data-i18n-title="clear_chat_title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -155,7 +155,7 @@
                             rows="1"
                             required
                         ></textarea>
-                        <button type="submit" class="btn-send" id="sendButton">
+                        <button type="submit" class="btn-send" id="sendButton" aria-label="Надіслати повідомлення">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="22" y1="2" x2="11" y2="13"/>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -170,10 +170,10 @@
         </div>
     </section>
 
-    <div class="modal" id="medicineModal">
+    <div class="modal" id="medicineModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-overlay" id="modalOverlay"></div>
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">
+            <button class="modal-close" id="modalClose" aria-label="Закрити">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/>
                     <line x1="6" y1="6" x2="18" y2="18"/>
